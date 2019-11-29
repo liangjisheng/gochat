@@ -16,7 +16,3 @@ room = 1024
 svrProto = 80
 routineAmount = 32
 routineSize = 20
-
-
-
-

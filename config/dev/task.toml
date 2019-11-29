@@ -10,4 +10,3 @@ pushChanSize = 50
 [[task-cometsAddrs]]
 key = 1
 addr = "tcp@0.0.0.0:6912"
-
