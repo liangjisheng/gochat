@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"sync"
@@ -50,11 +49,11 @@ func Init() {
 	once.Do(func() {
 		env := GetMode()
 		realPath, _ := filepath.Abs("./")
-		fmt.Println(realPath)
 		configFilePath := realPath + "/config/" + env + "/"
 		viper.SetConfigType("toml")
-		viper.SetConfigName("/connect")
 		viper.AddConfigPath(configFilePath)
+
+		viper.SetConfigName("/connect")
 		err := viper.ReadInConfig()
 		if err != nil {
 			panic(err)
@@ -91,6 +90,13 @@ func Init() {
 		viper.Unmarshal(&Conf.Logic)
 		viper.Unmarshal(&Conf.API)
 		viper.Unmarshal(&Conf.Site)
+
+		// fmt.Printf("config common: %+v\n", Conf.Common)
+		// fmt.Printf("config connect: %+v\n", Conf.Connect)
+		// fmt.Printf("config task: %+v\n", Conf.Task)
+		// fmt.Printf("config login: %+v\n", Conf.Logic)
+		// fmt.Printf("config api: %+v\n", Conf.API)
+		// fmt.Printf("config site: %+v\n", Conf.Site)
 	})
 }
 
@@ -148,6 +154,11 @@ type ConnectBase struct {
 	KeyPath  string `mapstructure:"keyPath"`
 }
 
+// ConnectWebsocket ...
+type ConnectWebsocket struct {
+	Bind string `mapstructure:"bind"`
+}
+
 // ConnectRPCAddress ...
 type ConnectRPCAddress struct {
 	Address string `mapstructure:"address"`
@@ -161,11 +172,6 @@ type ConnectBucket struct {
 	SrvProto      int    `mapstructure:"svrProto"`
 	RoutineAmount uint64 `mapstructure:"routineAmount"`
 	RoutineSize   int    `mapstructure:"routineSize"`
-}
-
-// ConnectWebsocket ...
-type ConnectWebsocket struct {
-	Bind string `mapstructure:"bind"`
 }
 
 // ConnectConfig ...
@@ -185,23 +191,23 @@ type LogicBase struct {
 }
 
 // LogicRedis ...
-type LogicRedis struct {
-	RedisAddress  string `mapstructure:"redisAddress"`
-	RedisPassword string `mapstructure:"redisPassword"`
-}
+// type LogicRedis struct {
+// 	RedisAddress  string `mapstructure:"redisAddress"`
+// 	RedisPassword string `mapstructure:"redisPassword"`
+// }
 
 // LogicEtcd ...
-type LogicEtcd struct {
-	Host     string `mapstructure:"host"`
-	BasePath string `mapstructure:"basePath"`
-	ServerID string `mapstructure:"serverId"`
-}
+// type LogicEtcd struct {
+// 	Host     string `mapstructure:"host"`
+// 	BasePath string `mapstructure:"basePath"`
+// 	ServerID string `mapstructure:"serverId"`
+// }
 
 // LogicConfig ...
 type LogicConfig struct {
-	LogicBase  LogicBase  `mapstructure:"logic-base"`
-	LogicRedis LogicRedis `mapstructure:"logic-redis"`
-	LogicEtcd  LogicEtcd  `mapstructure:"logic-etcd"`
+	LogicBase LogicBase `mapstructure:"logic-base"`
+	// LogicRedis LogicRedis `mapstructure:"logic-redis"`
+	// LogicEtcd  LogicEtcd  `mapstructure:"logic-etcd"`
 }
 
 // TaskBase ...
