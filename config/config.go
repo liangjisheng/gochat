@@ -227,7 +227,8 @@ type TaskConfig struct {
 
 // APIBase ...
 type APIBase struct {
-	ListenPort int `mapstructure:"listenPort"`
+	ListenHost string `mapstructure:"listenHost"`
+	ListenPort int    `mapstructure:"listenPort"`
 }
 
 // APIConfig ...

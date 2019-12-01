@@ -37,10 +37,10 @@ func GetDb(dbName string) (db *gorm.DB) {
 
 // User ...
 type User struct {
-	ID    uint64 `gorm:"id"`
-	Name  string `gorm:"user_name"`
-	Pwd   string `gorm:"password"`
-	CTime uint64 `gorm:"create_time"`
+	ID         uint64    `gorm:"user_id"`
+	Name       string    `gorm:"user_name"`
+	Pwd        string    `gorm:"password"`
+	CreateTime time.Time `gorm:"create_time"`
 }
 
 func initDB(dbName string) {
@@ -107,6 +107,6 @@ func countDB() {
 
 func init() {
 	initDB("gochat")
-	// queryAll()
-	countDB()
+	queryAll()
+	// countDB()
 }
