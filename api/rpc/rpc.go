@@ -59,3 +59,34 @@ func (rpc *Logic) Register(req *proto.RegisterRequest) (code int, authToken stri
 	authToken = reply.AuthToken
 	return
 }
+
+// Login ...
+func (rpc *Logic) Login(req *proto.LoginRequest) (code int, authToken string, msg string) {
+	reply := &proto.LoginResponse{}
+	err := LogicRPCClient.Call(context.Background(), "Register", req, reply)
+	if err != nil {
+		msg = err.Error()
+	}
+	code = reply.Code
+	authToken = reply.AuthToken
+	return
+}
+
+// GetUserNameByUserID ...
+func (rpc *Logic) GetUserNameByUserID(req *proto.GetUserInfoRequest) (code int, userName string) {
+	reply := &proto.GetUserInfoResponse{}
+	LogicRPCClient.Call(context.Background(), "GetUserInfoByUserID", req, reply)
+	code = reply.Code
+	userName = reply.UserName
+	return
+}
+
+// CheckAuth ...
+func (rpc *Logic) CheckAuth(req *proto.CheckAuthRequest) (code int, userID int, userName string) {
+	reply := &proto.CheckAuthResponse{}
+	LogicRPCClient.Call(context.Background(), "CheckAuth", req, reply)
+	code = reply.Code
+	userID = reply.UserID
+	userName = reply.UserName
+	return
+}
