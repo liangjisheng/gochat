@@ -63,7 +63,8 @@ func (rpc *Logic) Register(req *proto.RegisterRequest) (code int, authToken stri
 // Login ...
 func (rpc *Logic) Login(req *proto.LoginRequest) (code int, authToken string, msg string) {
 	reply := &proto.LoginResponse{}
-	err := LogicRPCClient.Call(context.Background(), "Register", req, reply)
+	logrus.Info("log request", *req)
+	err := LogicRPCClient.Call(context.Background(), "Login", req, reply)
 	if err != nil {
 		msg = err.Error()
 	}
@@ -88,5 +89,13 @@ func (rpc *Logic) CheckAuth(req *proto.CheckAuthRequest) (code int, userID int, 
 	code = reply.Code
 	userID = reply.UserID
 	userName = reply.UserName
+	return
+}
+
+// Logout ...
+func (rpc *Logic) Logout(req *proto.LogoutRequest) (code int) {
+	reply := &proto.LogoutResponse{}
+	LogicRPCClient.Call(context.Background(), "Logout", req, reply)
+	code = reply.Code
 	return
 }

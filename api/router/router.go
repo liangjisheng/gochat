@@ -2,10 +2,13 @@ package router
 
 import (
 	"gochat/api/handler"
+	"gochat/api/rpc"
+	"gochat/proto"
 	"gochat/tools"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 )
 
 // Register ...
@@ -22,6 +25,42 @@ func Register() *gin.Engine {
 func initUserRouter(r *gin.Engine) {
 	userGroup := r.Group("/user")
 	userGroup.POST("/register", handler.Register)
+	userGroup.POST("/login", handler.Login)
+	userGroup.Use(CheckSessionID())
+	{
+		userGroup.POST("/checkAuth", handler.CheckAuth)
+		userGroup.POST("/logout", handler.Logout)
+	}
+}
+
+// FormCheckSessionID ...
+type FormCheckSessionID struct {
+	AuthToken string `form:"authToken" json:"authToken" binding:"required"`
+}
+
+// CheckSessionID ...
+func CheckSessionID() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var formCheckSessionID FormCheckSessionID
+		if err := c.ShouldBindBodyWith(&formCheckSessionID, binding.JSON); err != nil {
+			c.Abort()
+			tools.ResponseWithCode(c, tools.CodeSessionError, nil, nil)
+			return
+		}
+		authToken := formCheckSessionID.AuthToken
+		req := &proto.CheckAuthRequest{
+			AuthToken: authToken,
+		}
+
+		code, userID, userName := rpc.RPCLogicObj.CheckAuth(req)
+		if code == tools.CodeFail || userID <= 0 || userName == "" {
+			c.Abort()
+			tools.ResponseWithCode(c, tools.CodeSessionError, nil, nil)
+			return
+		}
+		c.Next()
+		return
+	}
 }
 
 // CorsMiddleware ...

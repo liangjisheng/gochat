@@ -65,12 +65,12 @@ func initDB(dbName string) {
 func queryAll() {
 	gochat := &GoChat{}
 	gochatDB := GetDb(gochat.GetDbName())
-	sqlStr := fmt.Sprintf("select * from user")
-	gochatDB = gochatDB.Exec(sqlStr)
-	if gochatDB.Error != nil {
-		log.Println("select db err:", gochatDB.Error)
-		return
-	}
+	// sqlStr := fmt.Sprintf("select * from user")
+	// gochatDB = gochatDB.Exec(sqlStr)
+	// if gochatDB.Error != nil {
+	// 	log.Println("select db err:", gochatDB.Error)
+	// 	return
+	// }
 
 	// var id, timestamp uint64
 	// var username, userpwd string
@@ -107,6 +107,6 @@ func countDB() {
 
 func init() {
 	initDB("gochat")
-	queryAll()
+	// queryAll()
 	// countDB()
 }

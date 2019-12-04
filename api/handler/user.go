@@ -64,6 +64,7 @@ type FormCheckAuth struct {
 	AuthToken string `form:"authToken" json:"authToken" binding:"required"`
 }
 
+// CheckAuth ...
 func CheckAuth(c *gin.Context) {
 	var formCheckAuth FormCheckAuth
 	if err := c.ShouldBindBodyWith(&formCheckAuth, binding.JSON); err != nil {
@@ -84,4 +85,28 @@ func CheckAuth(c *gin.Context) {
 		"userName": userName,
 	}
 	tools.SuccessWithMsg(c, "auth success", jsonData)
+}
+
+// FormLogout ...
+type FormLogout struct {
+	AuthToken string `form:"authToken" json:"authToken" binding:"required"`
+}
+
+// Logout ...
+func Logout(c *gin.Context) {
+	var formLogout FormLogout
+	if err := c.ShouldBindBodyWith(&formLogout, binding.JSON); err != nil {
+		tools.FailWithMsg(c, err.Error())
+		return
+	}
+	authToken := formLogout.AuthToken
+	logoutReq := &proto.LogoutRequest{
+		AuthToken: authToken,
+	}
+	code := rpc.RPCLogicObj.Logout(logoutReq)
+	if code == tools.CodeFail {
+		tools.FailWithMsg(c, "logout fail!")
+		return
+	}
+	tools.SuccessWithMsg(c, "logout ok!", nil)
 }

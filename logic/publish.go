@@ -1,19 +1,19 @@
 package logic
 
 import (
+	"bytes"
 	"fmt"
-	"gochat/config"
-	"gochat/tools"
 	"strings"
 	"time"
 
-	"github.com/rcrowley/go-metrics"
-	"github.com/smallnest/rpcx/serverplugin"
-
-	"github.com/smallnest/rpcx/server"
+	"gochat/config"
+	"gochat/tools"
 
 	"github.com/go-redis/redis"
+	"github.com/rcrowley/go-metrics"
 	"github.com/sirupsen/logrus"
+	"github.com/smallnest/rpcx/server"
+	"github.com/smallnest/rpcx/serverplugin"
 )
 
 var (
@@ -83,4 +83,25 @@ func (logic *Logic) addRegisterPlugin(s *server.Server, network, addr string) {
 		logrus.Fatal(err)
 	}
 	s.Plugins.Add(r)
+}
+
+func (logic *Logic) getRoomUserKey(authKey string) string {
+	var returnKey bytes.Buffer
+	returnKey.WriteString(config.RedisRoomPrefix)
+	returnKey.WriteString(authKey)
+	return returnKey.String()
+}
+
+func (logic *Logic) getRoomOnlineCountKey(authKey string) string {
+	var returnKey bytes.Buffer
+	returnKey.WriteString(config.RedisRoomOnlinePrefix)
+	returnKey.WriteString(authKey)
+	return returnKey.String()
+}
+
+func (logic *Logic) getUserKey(authKey string) string {
+	var returnKey bytes.Buffer
+	returnKey.WriteString(config.RedisPrefix)
+	returnKey.WriteString(authKey)
+	return returnKey.String()
 }

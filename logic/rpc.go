@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"errors"
+	"fmt"
 	"gochat/tools"
 	"strconv"
 	"time"
@@ -128,5 +129,49 @@ func (rpc *RPCLogic) CheckAuth(ctx context.Context, args *proto.CheckAuthRequest
 	userName, _ := userDataMap["userName"]
 	reply.Code = config.SuccessReplyCode
 	reply.UserName = userName
+	return
+}
+
+// Logout ...
+func (rpc *RPCLogic) Logout(ctx context.Context, args *proto.LogoutRequest, reply *proto.LogoutResponse) (err error) {
+	reply.Code = config.FailReplyCode
+	authToken := args.AuthToken
+	sessionName := tools.GetSessionName(authToken)
+
+	var userDataMap = map[string]string{}
+	userDataMap, err = RedisSessClient.HGetAll(sessionName).Result()
+	if err != nil {
+		logrus.Infof("check auth fail!,authToken is:%s", authToken)
+		return err
+	}
+	if len(userDataMap) == 0 {
+		logrus.Infof("no this user session,authToken is:%s", authToken)
+		return
+	}
+	intUserID, _ := strconv.Atoi(userDataMap["userID"])
+	sessIDMap := tools.GetSessionIDByUserID(intUserID)
+
+	// del sess_map like sess_map_1
+	err = RedisSessClient.Del(sessIDMap).Err()
+	if err != nil {
+		logrus.Infof("logout del sess map error:%s", err.Error())
+		return err
+	}
+
+	// del serverID
+	logic := new(Logic)
+	serverIDKey := logic.getUserKey(fmt.Sprintf("%d", intUserID))
+	err = RedisSessClient.Del(serverIDKey).Err()
+	if err != nil {
+		logrus.Infof("logout del server id error:%s", err.Error())
+		return err
+	}
+
+	err = RedisSessClient.Del(sessionName).Err()
+	if err != nil {
+		logrus.Infof("logout error:%s", err.Error())
+		return err
+	}
+	reply.Code = config.SuccessReplyCode
 	return
 }
