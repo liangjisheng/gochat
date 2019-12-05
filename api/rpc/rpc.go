@@ -99,3 +99,12 @@ func (rpc *Logic) Logout(req *proto.LogoutRequest) (code int) {
 	code = reply.Code
 	return
 }
+
+// Push ...
+func (rpc *Logic) Push(req *proto.Send) (code int, msg string) {
+	reply := &proto.SuccessReply{}
+	LogicRPCClient.Call(context.Background(), "Push", req, reply)
+	code = reply.Code
+	msg = reply.Msg
+	return
+}

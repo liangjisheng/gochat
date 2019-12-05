@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"gochat/tools"
@@ -171,6 +172,38 @@ func (rpc *RPCLogic) Logout(ctx context.Context, args *proto.LogoutRequest, repl
 	if err != nil {
 		logrus.Infof("logout error:%s", err.Error())
 		return err
+	}
+	reply.Code = config.SuccessReplyCode
+	return
+}
+
+// Push single send msg
+func (rpc *RPCLogic) Push(ctx context.Context, args *proto.Send, reply *proto.SuccessReply) (err error) {
+	reply.Code = config.FailReplyCode
+	sendData := args
+	var bodyBytes []byte
+	bodyBytes, err = json.Marshal(sendData)
+	if err != nil {
+		logrus.Errorf("logic,push msg fail,err:%s", err.Error())
+		return
+	}
+
+	logic := new(Logic)
+	userSidKey := logic.getUserKey(fmt.Sprintf("%d", sendData.ToUserID))
+	fmt.Println("userSidkey:", userSidKey)
+	serverID := RedisSessClient.Get(userSidKey).Val()
+	fmt.Println("serverID:", serverID)
+	var serverIDInt int
+	serverIDInt, err = strconv.Atoi(serverID)
+	if err != nil {
+		logrus.Errorf("logic,push parse int fail:%s", err.Error())
+		return
+	}
+
+	err = logic.RedisPublishChannel(serverIDInt, sendData.ToUserID, bodyBytes)
+	if err != nil {
+		logrus.Errorf("logic,redis publish err: %s", err.Error())
+		return
 	}
 	reply.Code = config.SuccessReplyCode
 	return

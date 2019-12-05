@@ -2,11 +2,13 @@ package logic
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
 
 	"gochat/config"
+	"gochat/proto"
 	"gochat/tools"
 
 	"github.com/go-redis/redis"
@@ -83,6 +85,27 @@ func (logic *Logic) addRegisterPlugin(s *server.Server, network, addr string) {
 		logrus.Fatal(err)
 	}
 	s.Plugins.Add(r)
+}
+
+// RedisPublishChannel ...
+func (logic *Logic) RedisPublishChannel(serverID int, toUserID int, msg []byte) (err error) {
+	redisMsg := proto.RedisMsg{
+		Op:       config.OpSingleSend,
+		ServerID: serverID,
+		UserID:   toUserID,
+		Msg:      msg,
+	}
+	redisMsgStr, err := json.Marshal(redisMsg)
+	if err != nil {
+		logrus.Errorf("logic,RedisPublishChannel Marshal err:%s", err.Error())
+		return err
+	}
+	redisChannel := config.QueueName
+	if err := RedisClient.Publish(redisChannel, redisMsgStr).Err(); err != nil {
+		logrus.Errorf("logic,RedisPublishChannel err:%s", err.Error())
+		return err
+	}
+	return
 }
 
 func (logic *Logic) getRoomUserKey(authKey string) string {
