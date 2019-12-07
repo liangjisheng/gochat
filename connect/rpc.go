@@ -112,3 +112,59 @@ func (rpc *RPCConnect) DisConnect(disConnReq *proto.DisConnectRequest) (err erro
 // RPCConnectPush ...
 type RPCConnectPush struct {
 }
+
+// PushSingleMsg ...
+func (rpc *RPCConnectPush) PushSingleMsg(ctx context.Context, pushMsgReq *proto.PushMsgRequest, successReply *proto.SuccessReply) (err error) {
+	var (
+		bucket  *Bucket
+		channel *Channel
+	)
+	logrus.Infof("rpc PushMsg :%v ", pushMsgReq)
+	if pushMsgReq == nil {
+		logrus.Errorf("rpc PushSingleMsg() args:(%v)", pushMsgReq)
+		return
+	}
+	bucket = DefaultServer.Bucket(pushMsgReq.UserID)
+	if channel = bucket.Channel(pushMsgReq.UserID); channel != nil {
+		err = channel.Push(&pushMsgReq.Msg)
+		logrus.Infof("DefaultServer Channel err nil ,args: %v", pushMsgReq)
+		return
+	}
+	successReply.Code = config.SuccessReplyCode
+	successReply.Msg = config.SuccessReplyMsg
+	logrus.Infof("successReply:%v", successReply)
+	return
+}
+
+// PushRoomMsg ...
+func (rpc *RPCConnectPush) PushRoomMsg(ctx context.Context, pushRoomMsgReq *proto.PushRoomMsgRequest, successReply *proto.SuccessReply) (err error) {
+	successReply.Code = config.SuccessReplyCode
+	successReply.Msg = config.SuccessReplyMsg
+	logrus.Infof("PushRoomMsg msg %+v", pushRoomMsgReq)
+	for _, bucket := range DefaultServer.Buckets {
+		bucket.BroadcastRoom(pushRoomMsgReq)
+	}
+	return
+}
+
+// PushRoomCount ...
+func (rpc *RPCConnectPush) PushRoomCount(ctx context.Context, pushRoomMsgReq *proto.PushRoomMsgRequest, successReply *proto.SuccessReply) (err error) {
+	successReply.Code = config.SuccessReplyCode
+	successReply.Msg = config.SuccessReplyMsg
+	logrus.Infof("PushRoomCount msg %v", pushRoomMsgReq)
+	for _, bucket := range DefaultServer.Buckets {
+		bucket.BroadcastRoom(pushRoomMsgReq)
+	}
+	return
+}
+
+// PushRoomInfo ...
+func (rpc *RPCConnectPush) PushRoomInfo(ctx context.Context, pushRoomMsgReq *proto.PushRoomMsgRequest, successReply *proto.SuccessReply) (err error) {
+	successReply.Code = config.SuccessReplyCode
+	successReply.Msg = config.SuccessReplyMsg
+	logrus.Infof("connect,PushRoomInfo msg %+v", pushRoomMsgReq)
+	for _, bucket := range DefaultServer.Buckets {
+		bucket.BroadcastRoom(pushRoomMsgReq)
+	}
+	return
+}

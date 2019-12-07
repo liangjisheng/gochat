@@ -39,9 +39,9 @@ func initPushRouter(r *gin.Engine) {
 	pushGroup.Use(CheckSessionID())
 	{
 		pushGroup.POST("/push", handler.Push)
-		// pushGroup.POST("/pushRoom", handler.PushRoom)
-		// pushGroup.POST("/count", handler.Count)
-		// pushGroup.POST("/getRoomInfo", handler.GetRoomInfo)
+		pushGroup.POST("/pushRoom", handler.PushRoom)
+		pushGroup.POST("/count", handler.Count)
+		pushGroup.POST("/getRoomInfo", handler.GetRoomInfo)
 	}
 }
 

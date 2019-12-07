@@ -3,6 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"gochat/connect"
+	"gochat/site"
+	"gochat/task"
 	"os"
 	"os/signal"
 	"syscall"
@@ -19,8 +22,14 @@ func main() {
 	switch module {
 	case "logic":
 		logic.New().Run()
+	case "connect":
+		connect.New().Run()
+	case "task":
+		task.New().Run()
 	case "api":
 		api.New().Run()
+	case "site":
+		site.New().Run()
 	default:
 		fmt.Println("exiting,module param error!")
 		return

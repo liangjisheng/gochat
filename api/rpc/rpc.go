@@ -108,3 +108,30 @@ func (rpc *Logic) Push(req *proto.Send) (code int, msg string) {
 	msg = reply.Msg
 	return
 }
+
+// PushRoom ...
+func (rpc *Logic) PushRoom(req *proto.Send) (code int, msg string) {
+	reply := &proto.SuccessReply{}
+	LogicRPCClient.Call(context.Background(), "PushRoom", req, reply)
+	code = reply.Code
+	msg = reply.Msg
+	return
+}
+
+// Count ...
+func (rpc *Logic) Count(req *proto.Send) (code int, msg string) {
+	reply := &proto.SuccessReply{}
+	LogicRPCClient.Call(context.Background(), "Count", req, reply)
+	code = reply.Code
+	msg = reply.Msg
+	return
+}
+
+// GetRoomInfo ...
+func (rpc *Logic) GetRoomInfo(req *proto.Send) (code int, msg string) {
+	reply := &proto.SuccessReply{}
+	LogicRPCClient.Call(context.Background(), "GetRoomInfo", req, reply)
+	code = reply.Code
+	msg = reply.Msg
+	return
+}

@@ -87,7 +87,7 @@ func (logic *Logic) addRegisterPlugin(s *server.Server, network, addr string) {
 	s.Plugins.Add(r)
 }
 
-// RedisPublishChannel ...
+// RedisPublishChannel 发布消息
 func (logic *Logic) RedisPublishChannel(serverID int, toUserID int, msg []byte) (err error) {
 	redisMsg := proto.RedisMsg{
 		Op:       config.OpSingleSend,
@@ -104,6 +104,69 @@ func (logic *Logic) RedisPublishChannel(serverID int, toUserID int, msg []byte) 
 	if err := RedisClient.Publish(redisChannel, redisMsgStr).Err(); err != nil {
 		logrus.Errorf("logic,RedisPublishChannel err:%s", err.Error())
 		return err
+	}
+	return
+}
+
+// RedisPublishRoomInfo 发布一个房间的信息
+func (logic *Logic) RedisPublishRoomInfo(roomID int, count int, RoomUserInfo map[string]string, msg []byte) (err error) {
+	var redisMsg = &proto.RedisMsg{
+		Op:           config.OpRoomSend,
+		RoomID:       roomID,
+		Count:        count,
+		Msg:          msg,
+		RoomUserInfo: RoomUserInfo,
+	}
+	redisMsgByte, err := json.Marshal(redisMsg)
+	if err != nil {
+		logrus.Errorf("logic,RedisPublishRoomInfo redisMsg error : %s", err.Error())
+		return
+	}
+	err = RedisClient.Publish(config.QueueName, redisMsgByte).Err()
+	if err != nil {
+		logrus.Errorf("logic,RedisPublishRoomInfo redisMsg error : %s", err.Error())
+		return
+	}
+	return
+}
+
+// RedisPushRoomCount 发布一个房间里面的所有用户数
+func (logic *Logic) RedisPushRoomCount(roomID int, count int) (err error) {
+	var redisMsg = &proto.RedisMsg{
+		Op:     config.OpRoomCountSend,
+		RoomID: roomID,
+		Count:  count,
+	}
+	redisMsgByte, err := json.Marshal(redisMsg)
+	if err != nil {
+		logrus.Errorf("logic,RedisPushRoomCount redisMsg error : %s", err.Error())
+		return
+	}
+	err = RedisClient.Publish(config.QueueName, redisMsgByte).Err()
+	if err != nil {
+		logrus.Errorf("logic,RedisPushRoomCount redisMsg error : %s", err.Error())
+		return
+	}
+	return
+}
+
+// RedisPushRoomInfo ...
+func (logic *Logic) RedisPushRoomInfo(roomID int, count int, roomUserInfo map[string]string) (err error) {
+	var redisMsg = &proto.RedisMsg{
+		Op:           config.OpRoomInfoSend,
+		RoomID:       roomID,
+		Count:        count,
+		RoomUserInfo: roomUserInfo,
+	}
+	redisMsgByte, err := json.Marshal(redisMsg)
+	if err != nil {
+		logrus.Errorf("logic,RedisPushRoomInfo redisMsg error : %s", err.Error())
+		return
+	}
+	err = RedisClient.Publish(config.QueueName, redisMsgByte).Err()
+	if err != nil {
+		logrus.Errorf("logic,RedisPushRoomInfo redisMsg error : %s", err.Error())
+		return
 	}
 	return
 }
